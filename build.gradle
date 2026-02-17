@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'enes.darkbot'
+version '1.0.5'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

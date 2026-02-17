@@ -1,0 +1,11 @@
+{
+    "name": "Universal Enemy Player Attacker",
+    "version": "1.0.5",
+    "minVersion": "1.13.17",
+    "description": "Bütün haritalarda en yakın düşman oyuncuya (cloaked/görünmez dahil) kilitlenir ve saldırır",
+    "author": "Mert Enes AKARSU",
+    "features": [
+        "enes.darkbot.UniversalEnemyPlayerAttacker"
+    ],
+    "supportedVersion": "1.13.17"
+}
