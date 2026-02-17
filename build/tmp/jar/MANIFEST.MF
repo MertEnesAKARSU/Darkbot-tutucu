@@ -1,2 +1,4 @@
 Manifest-Version: 1.0
+Plugin-Id: enes.darkbot.UniversalEnemyPlayerAttacker
+Plugin-Version: 1.0.7
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'enes.darkbot'
-version '1.0.5'
+version '1.0.7'
 
 repositories {
     mavenCentral()
@@ -12,6 +12,14 @@ repositories {
 
 dependencies {
     compileOnly fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+jar {
+    archiveFileName = "darkbottutucu.jar"
+    manifest {
+        attributes 'Plugin-Id': 'enes.darkbot.UniversalEnemyPlayerAttacker',
+                'Plugin-Version': archiveVersion
+    }
 }
 
 tasks.withType(JavaCompile) {

@@ -1,11 +1,13 @@
 {
     "name": "Universal Enemy Player Attacker",
-    "version": "1.0.5",
+    "version": "1.0.7",
     "minVersion": "1.13.17",
     "description": "Bütün haritalarda en yakın düşman oyuncuya (cloaked/görünmez dahil) kilitlenir ve saldırır",
     "author": "Mert Enes AKARSU",
     "features": [
         "enes.darkbot.UniversalEnemyPlayerAttacker"
     ],
-    "supportedVersion": "1.13.17"
+    "supportedVersion": "1.13.17",
+    "update": "https://raw.githubusercontent.com/MertEnesAKARSU/Darkbot-tutucu/main/build/resources/main/plugin.json",
+    "download": "https://github.com/MertEnesAKARSU/Darkbot-tutucu/releases/latest/download/darkbottutucu.jar"
 }

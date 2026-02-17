@@ -19,12 +19,15 @@ public class UniversalEnemyPlayerAttacker implements Module, Configurable<Univer
     private final HeroAPI hero;
     private final AttackAPI attack;
     private final EntitiesAPI entities;
+    private final eu.darkbot.api.managers.HeroItemsAPI items;
     private UniversalAttackerConfig config;
 
-    public UniversalEnemyPlayerAttacker(HeroAPI hero, AttackAPI attack, EntitiesAPI entities) {
+    public UniversalEnemyPlayerAttacker(HeroAPI hero, AttackAPI attack, EntitiesAPI entities,
+            eu.darkbot.api.managers.HeroItemsAPI items) {
         this.hero = hero;
         this.attack = attack;
         this.entities = entities;
+        this.items = items;
     }
 
     @Override
@@ -38,16 +41,37 @@ public class UniversalEnemyPlayerAttacker implements Module, Configurable<Univer
             return;
         }
 
-        // Keybind check (Basic implementation, relying on DarkBot's internal handling
-        // if possible, otherwise just config)
-        // Note: Direct key checking might need specific API access not fully visible
-        // here,
-        // effectively relying on config.lockKey being set/handled by the bot's input
-        // system if mapped.
-        // For now, we proceed with automatic logic roughly detailed.
+        // Target Selection
+        eu.darkbot.api.game.other.Lockable target = getBestTarget();
 
+        if (target != null) {
+            if (attack.getTarget() != target) {
+                attack.setTarget(target);
+                attack.tryLockAndAttack();
+                hero.setLocalTarget(target);
+                // Log only if it's a Player to avoid spamming console for every NPC
+                if (target instanceof Player) {
+                    logTarget((Player) target);
+                }
+            } else if (!attack.isAttacking()) {
+                attack.tryLockAndAttack();
+            }
+
+            // Ammo Logic
+            handleAmmoLogic(target);
+
+        } else {
+            if (attack.hasTarget() || hero.getLocalTarget() != null) {
+                attack.stopAttack();
+                hero.setLocalTarget(null);
+            }
+        }
+    }
+
+    private eu.darkbot.api.game.other.Lockable getBestTarget() {
         Collection<? extends Player> players = entities.getPlayers();
 
+        // 1. Check for Enemy Players
         Player closestEnemy = players.stream()
                 .filter(p -> p.isValid())
                 .filter(p -> p.getHealth().getHp() > 0)
@@ -59,21 +83,36 @@ public class UniversalEnemyPlayerAttacker implements Module, Configurable<Univer
                 .min(getPriorityComparator())
                 .orElse(null);
 
-        if (closestEnemy != null) {
-            if (attack.getTarget() != closestEnemy) {
-                attack.setTarget(closestEnemy);
-                attack.tryLockAndAttack();
-                hero.setLocalTarget(closestEnemy);
-                logTarget(closestEnemy);
-            } else if (!attack.isAttacking()) {
-                attack.tryLockAndAttack();
-            }
-        } else {
-            if (attack.hasTarget() || hero.getLocalTarget() != null) {
-                attack.stopAttack();
-                hero.setLocalTarget(null);
-            }
+        if (closestEnemy != null)
+            return closestEnemy;
+
+        // 2. Check for NPCs (if enabled and no enemy player found)
+        if (config.attackNpcs) {
+            return entities.getNpcs().stream()
+                    .filter(n -> n.isValid())
+                    .filter(n -> n.getHealth().getHp() > 0)
+                    .filter(n -> n.getLocationInfo().distanceTo(hero) <= config.range)
+                    .min(Comparator.comparingDouble(n -> n.getLocationInfo().distanceTo(hero)))
+                    .orElse(null);
         }
+
+        return null;
+    }
+
+    private void handleAmmoLogic(eu.darkbot.api.game.other.Lockable target) {
+        if (target == null || config.initialAmmo == null || config.secondAmmo == null)
+            return;
+
+        double shieldPercent = target.getHealth().getShield() / (double) target.getHealth().getMaxShield() * 100;
+
+        eu.darkbot.api.game.items.SelectableItem.Laser desiredAmmo;
+        if (shieldPercent > config.ammoSwitchAmount) {
+            desiredAmmo = config.initialAmmo;
+        } else {
+            desiredAmmo = config.secondAmmo;
+        }
+
+        items.useItem(desiredAmmo, eu.darkbot.api.game.items.ItemFlag.USABLE, eu.darkbot.api.game.items.ItemFlag.READY);
     }
 
     private Comparator<Player> getPriorityComparator() {

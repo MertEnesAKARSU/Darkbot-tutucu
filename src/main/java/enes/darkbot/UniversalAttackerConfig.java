@@ -37,6 +37,23 @@ public class UniversalAttackerConfig {
     @Option("Lock Key (Press to Lock)")
     public Character lockKey = null;
 
+    // NPC Settings
+    @Option("Attack NPCs")
+    public boolean attackNpcs = false;
+
+    // Ammo Settings
+    @Option("Initial Ammo")
+    @Dropdown
+    public eu.darkbot.api.game.items.SelectableItem.Laser initialAmmo = eu.darkbot.api.game.items.SelectableItem.Laser.LCB_10;
+
+    @Option("Second Ammo (Finisher)")
+    @Dropdown
+    public eu.darkbot.api.game.items.SelectableItem.Laser secondAmmo = eu.darkbot.api.game.items.SelectableItem.Laser.UCB_100;
+
+    @Option("Switch Ammo at Shield %")
+    @Number(min = 0, max = 100, step = 5)
+    public int ammoSwitchAmount = 0;
+
     public enum Priority {
         CLOSEST, LOWEST_HEALTH
     }
